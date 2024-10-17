@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script type="module" defer
+        src="https://cdn.jsdelivr.net/npm/@sudodevnull/datastar@v0.19.2/dist/datastar.min.js"></script>
+
+</head>
+
+<body>
+
+
+
+    <script type="text/javascript">
+
+        class MyCustomElement extends HTMLElement {
+            constructor() {
+                super();
+                const template = document.createElement("template");
+                const id = Math.random().toString(36).substr(2, 9);
+                template.innerHTML = `
+          <input type="text" id="input-${id}" />
+          `;
+                this.shadow = this.attachShadow({ mode: "open" });
+                this.shadow.appendChild(template.content.cloneNode(true));
+
+                this.input = this.shadow.getElementById("input-"+id);
+
+                this.input.onkeyup = () => {
+                    // const ev = new CustomEvent("keydown", { detail: this.input.value } )
+                    const ev = new CustomEvent("change", { detail: { value: this.input.value } })
+                    this.dispatchEvent(ev);
+                    this.setAttribute("value", this.input.value);
+                    console.log('change', this.input.value, this.getAttribute("value"));
+                    // this.setAttribute("value", this.input.value);
+                    this.setAttribute("value", this.input.value);
+                };
+
+            }
+
+            static get observedAttributes() {
+                return ['value'];
+            }
+            static get formAssociated() { return true; }
+
+            attributeChangedCallback(name, oldValue, newValue) {
+                this.input.value = newValue;
+                // const ev = new Event("change", { detail: this.input.value } )
+                // this.setAttribute("value", this.input.value);
+                // this.dispatchEvent(ev);
+
+            }
+            // our custom element code
+        }
+
+        customElements.define('my-custom-element', MyCustomElement);
+
+
+
+
+        // window.addEventListener('load', function() {
+        //     document.addEventListener('mousemove', function(e) {
+        //         console.log(e.clientX, e.clientY);
+        //     });
+        // });
+    </script>
+    <div>
+        el
+        <my-custom-element data-bind-value="$test" data-on-change="$test=event.detail.value"></my-custom-element>
+        el
+    </div>
+    <div data-text="$test">div</div>
+    <div data-store="{  test:'123' }" data-on-store-change="console.log('log', $test)" class="flex w-full">
+        <div>
+            <div>
+                bel
+                <my-custom-element data-model="test"></my-custom-element>
+                bel
+            </div>
+        </div>
+    </div>
+
+
+</body>
+
+</html>
